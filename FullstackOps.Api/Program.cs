@@ -1,3 +1,5 @@
+using FullstackOps.Api.Features.Health;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
@@ -7,8 +9,7 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-app.MapGet("/__ping", () => Results.Ok(new { status = "ok", utc = DateTimeOffset.UtcNow }));
-app.MapHealthChecks("/health");
+
 
 if (app.Environment.IsDevelopment())
 {
@@ -17,6 +18,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.MapHealthFeature();
 app.MapControllers();
 
 app.Run();
