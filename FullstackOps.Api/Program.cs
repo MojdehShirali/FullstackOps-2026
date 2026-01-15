@@ -1,5 +1,7 @@
 using FullstackOps.Api.Features.Health;
 using FullstackOps.Api.Features.Tasks.Services;
+using FullstackOps.Api.Data;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHealthChecks();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
 
 var app = builder.Build();
 

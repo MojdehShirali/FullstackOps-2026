@@ -1,27 +1,45 @@
+using FullstackOps.Api.Data;
+using FullstackOps.Api.Data.Entities;
 using FullstackOps.Api.Features.Tasks.Dtos;
+using Microsoft.EntityFrameworkCore;
 
 namespace FullstackOps.Api.Features.Tasks.Services;
 
 public sealed class TaskService : ITaskService
 {
-    private readonly List<TaskResponse> _tasks = new();
+    private readonly AppDbContext _db;
+
+    public TaskService(AppDbContext db)
+    {
+        _db = db;
+    }
 
     public IEnumerable<TaskResponse> GetAll()
-        => _tasks;
+        => _db.Tasks
+            .AsNoTracking()
+            .OrderByDescending(x => x.Id)
+            .Select(x => new TaskResponse(x.Id, x.Title, x.Description))
+            .ToList();
 
     public TaskResponse? GetById(Guid id)
-        => _tasks.FirstOrDefault(t => t.Id == id);
+        => _db.Tasks
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new TaskResponse(x.Id, x.Title, x.Description))
+            .FirstOrDefault();
 
     public TaskResponse Create(CreateTaskRequest request)
     {
-        // Ici vivront plus tard les règles métier
-        var task = new TaskResponse(
-            Guid.NewGuid(),
-            request.Title,
-            request.Description
-        );
+        var entity = new TaskItem
+        {
+            Id = Guid.NewGuid(),
+            Title = request.Title,
+            Description = request.Description
+        };
 
-        _tasks.Add(task);
-        return task;
+        _db.Tasks.Add(entity);
+        _db.SaveChanges();
+
+        return new TaskResponse(entity.Id, entity.Title, entity.Description);
     }
 }
