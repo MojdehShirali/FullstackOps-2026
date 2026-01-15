@@ -32,4 +32,18 @@ public sealed class TasksController : ControllerBase
         var task = _taskService.Create(request);
         return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
     }
+
+    [HttpPut("{id:guid}")]
+    public ActionResult<TaskResponse> Update(Guid id, UpdateTaskRequest request)
+    {
+        var task = _taskService.Update(id, request);
+        return task is null ? NotFound() : Ok(task);
+    }
+
+    [HttpDelete("{id:guid}")]
+    public IActionResult Delete(Guid id)
+    {
+        var deleted = _taskService.Delete(id);
+        return deleted ? NoContent() : NotFound();
+    }
 }

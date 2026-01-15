@@ -42,4 +42,30 @@ public sealed class TaskService : ITaskService
 
         return new TaskResponse(entity.Id, entity.Title, entity.Description);
     }
+
+    public TaskResponse? Update(Guid id, UpdateTaskRequest request)
+    {
+        var entity = _db.Tasks.FirstOrDefault(x => x.Id == id);
+        if (entity is null)
+            return null;
+
+        entity.Title = request.Title;
+        entity.Description = request.Description;
+
+        _db.SaveChanges();
+
+        return new TaskResponse(entity.Id, entity.Title, entity.Description);
+    }
+
+    public bool Delete(Guid id)
+    {
+        var entity = _db.Tasks.FirstOrDefault(x => x.Id == id);
+        if (entity is null)
+            return false;
+
+        _db.Tasks.Remove(entity);
+        _db.SaveChanges();
+        return true;
+    }
+
 }
