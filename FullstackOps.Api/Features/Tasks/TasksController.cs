@@ -16,8 +16,11 @@ public sealed class TasksController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<TaskResponse>> GetAll()
-        => Ok(_taskService.GetAll());
+    public ActionResult<IEnumerable<TaskResponse>> GetAll([FromQuery] TaskQueryParameters parameters)
+    {
+        return Ok(_taskService.GetAll(parameters));
+    }
+
 
     [HttpGet("{id:guid}")]
     public ActionResult<TaskResponse> GetById(Guid id)

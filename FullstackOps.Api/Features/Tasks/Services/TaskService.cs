@@ -14,12 +14,26 @@ public sealed class TaskService : ITaskService
         _db = db;
     }
 
-    public IEnumerable<TaskResponse> GetAll()
-        => _db.Tasks
-            .AsNoTracking()
-            .OrderByDescending(x => x.Id)
+    public IEnumerable<TaskResponse> GetAll(TaskQueryParameters parameters)
+    {
+        var query = _db.Tasks.AsNoTracking().AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(parameters.Search))
+        {
+            query = query.Where(x =>
+                x.Title.Contains(parameters.Search) ||
+                (x.Description != null && x.Description.Contains(parameters.Search)));
+        }
+
+        query = query
+            .OrderBy(x => x.Title)
+            .Skip((parameters.Page - 1) * parameters.PageSize)
+            .Take(parameters.PageSize);
+
+        return query
             .Select(x => new TaskResponse(x.Id, x.Title, x.Description))
             .ToList();
+    }
 
     public TaskResponse? GetById(Guid id)
         => _db.Tasks
